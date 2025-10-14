@@ -1,12 +1,21 @@
+import javax.swing.*;
 import java.awt.*;
 
 public class Player {
     private int x, y;
     private int speed = 12;
+    private Image sprite;
+    int offsetY;
+
 
     public Player(int x, int y) {
         this.x = x;
         this.y = y;
+
+        //this will load up the still image for now
+        sprite = new ImageIcon("src/assets/sprites/player/rustam.png").getImage();
+        offsetY = sprite.getHeight(null) -32; // 32 is the tileheight
+
     }
 
     public void moveUp()    {
@@ -26,7 +35,7 @@ public class Player {
     public int getY() { return y; }
 
     public void draw(Graphics g, int screenX, int screenY) {
-        g.setColor(Color.RED);
-        g.fillRect(screenX, screenY, 32, 32); // basic red square for now
+
+        g.drawImage(sprite, screenX , screenY - offsetY, null);
     }
 }

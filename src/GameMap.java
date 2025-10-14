@@ -30,7 +30,7 @@ public class GameMap extends JPanel implements KeyListener {
 
         try {
             // Load your tileset image
-            tileImage = new ImageIcon("src/assets/maps/tileset.png").getImage();
+            tileImage = new ImageIcon("src/assets/maps/tiles/GrassTileset.png").getImage();
 
             // Load your TMX map
             File file = new File("src/assets/maps/sindbad_map.tmx");
@@ -54,7 +54,7 @@ public class GameMap extends JPanel implements KeyListener {
 
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {
-                        mapData[y][x] = Integer.parseInt(data[y * width + x].trim());
+                        mapData[y][x] = Integer.parseInt(data[y * width + x].trim()) -1;
                     }
                 }
             }
@@ -66,13 +66,19 @@ public class GameMap extends JPanel implements KeyListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        Graphics2D g2d = (Graphics2D) g;
+        double scale = 2.0;
+        g2d.scale(scale, scale);
+
         if (mapData == null || tileImage == null) return;
 
         int tilesPerRow = tileImage.getWidth(null) / tileWidth;
 
         // === 🧭 CAMERA FOLLOW BOX LOGIC ===
-        int deadZoneWidth = 6 * tileWidth;   // 6 tiles wide
-        int deadZoneHeight = 6 * tileHeight; // 6 tiles tall
+        int deadZoneWidth = (int)(2 * tileWidth);   // 6 tiles wide added scale so that it scales with zoom factor
+        int deadZoneHeight = (int)(2 * tileHeight); // 6 tiles tall added scale so that it scales with zoom factor
+
 
         // The dead zone is centered in the screen
         int leftBound = cameraX + (getWidth() - deadZoneWidth) / 2;
@@ -91,11 +97,21 @@ public class GameMap extends JPanel implements KeyListener {
         else if (player.getY() > bottomBound)
             cameraY += (player.getY() - bottomBound);
 
-        // Clamp camera so it doesn't go outside map
-        cameraX = Math.max(0, Math.min(cameraX, mapData[0].length * tileWidth - getWidth()));
-        cameraY = Math.max(0, Math.min(cameraY, mapData.length * tileHeight - getHeight()));
+        //These have to be here for scaling, incase I want to use zoom
+        int scaledPanelWidth = (int)(getWidth() / scale);
+        int scaledPanelHeight = (int)(getHeight() / scale);
 
-        // === 🧱 DRAW MAP ===
+        cameraX = player.getX() - scaledPanelWidth / 2;
+        cameraY = player.getY() - scaledPanelHeight / 2;
+
+
+        int topBuffer = 48 - 32;
+
+        // Clamp camera so it doesn't go outside map
+        cameraX = Math.max(0, Math.min(cameraX, mapData[0].length * tileWidth - scaledPanelWidth));
+        cameraY = Math.max(topBuffer, Math.min(cameraY, mapData.length * tileHeight - scaledPanelHeight));
+
+        // DRAW MAP
         for (int y = 0; y < mapData.length; y++) {
             for (int x = 0; x < mapData[y].length; x++) {
                 int gid = mapData[y][x];
@@ -122,22 +138,11 @@ public class GameMap extends JPanel implements KeyListener {
             }
         }
 
-        // === 🧍‍♂️ DRAW PLAYER ===
+        // DRAW PLAYER
         // Player's position relative to camera
         int playerScreenX = player.getX() - cameraX;
         int playerScreenY = player.getY() - cameraY;
         player.draw(g, playerScreenX, playerScreenY);
-
-        // (Optional) draw the dead-zone rectangle for debugging
-    /*
-    g.setColor(new Color(255, 0, 0, 100));
-    g.drawRect(
-        (getWidth() - deadZoneWidth) / 2,
-        (getHeight() - deadZoneHeight) / 2,
-        deadZoneWidth,
-        deadZoneHeight
-    );
-    */
     }
 
     @Override
