@@ -76,8 +76,8 @@ public class GameMap extends JPanel implements KeyListener {
         int tilesPerRow = tileImage.getWidth(null) / tileWidth;
 
         // === 🧭 CAMERA FOLLOW BOX LOGIC ===
-        int deadZoneWidth = (int)(2 * tileWidth);   // 6 tiles wide added scale so that it scales with zoom factor
-        int deadZoneHeight = (int)(2 * tileHeight); // 6 tiles tall added scale so that it scales with zoom factor
+        int deadZoneWidth = (2 * tileWidth);   // 2 tiles wide added scale so that it scales with zoom factor
+        int deadZoneHeight = (2 * tileHeight); // 2 tiles tall added scale so that it scales with zoom factor
 
 
         // The dead zone is centered in the screen
@@ -104,12 +104,9 @@ public class GameMap extends JPanel implements KeyListener {
         cameraX = player.getX() - scaledPanelWidth / 2;
         cameraY = player.getY() - scaledPanelHeight / 2;
 
-
-        int topBuffer = 48 - 32;
-
         // Clamp camera so it doesn't go outside map
         cameraX = Math.max(0, Math.min(cameraX, mapData[0].length * tileWidth - scaledPanelWidth));
-        cameraY = Math.max(topBuffer, Math.min(cameraY, mapData.length * tileHeight - scaledPanelHeight));
+        cameraY = Math.max(0, Math.min(cameraY, mapData.length * tileHeight - scaledPanelHeight));
 
         // DRAW MAP
         for (int y = 0; y < mapData.length; y++) {
